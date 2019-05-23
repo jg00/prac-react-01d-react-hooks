@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 
 const todo = props => {
   const [todoName, setTodoName] = useState("");
@@ -10,6 +11,13 @@ const todo = props => {
 
   const todoAddHandler = () => {
     setTodoList(todoList.concat(todoName));
+    axios
+      .post(
+        "https://react-hooks-fundamentals.firebaseio.com/todos.json",
+        { name: todoName } // Firebase requires object
+      )
+      .then(res => console.log(res))
+      .catch(err => console.log(err));
   };
 
   const displayTodo = () => todoList.map(todo => <li key={todo}>{todo}</li>);
