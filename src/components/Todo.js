@@ -30,7 +30,7 @@ const todo = props => {
 
   // Example scenario to clean up event listeners so we only have one.
   const mouseMoveHandler = event => {
-    // console.log(event.clientX, event.clientY);
+    console.log(event.clientX, event.clientY);
   };
 
   useEffect(() => {
