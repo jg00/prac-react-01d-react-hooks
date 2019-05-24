@@ -13,7 +13,7 @@ const todo = props => {
     axios
       .get("https://react-hooks-fundamentals.firebaseio.com/todos.json")
       .then(res => {
-        console.log(res.data);
+        // console.log(res.data);
         const todoData = res.data; // { key : { name: 'Learn Hooks' } }
         const todos = [];
         for (let key in todoData) {
@@ -30,7 +30,7 @@ const todo = props => {
 
   // Example scenario to clean up event listeners so we only have one.
   const mouseMoveHandler = event => {
-    console.log(event.clientX, event.clientY);
+    // console.log(event.clientX, event.clientY);
   };
 
   useEffect(() => {
@@ -47,21 +47,29 @@ const todo = props => {
   };
 
   const todoAddHandler = () => {
-    setTodoList(todoList.concat(todoName));
+    // setTodoList(todoList.concat(todoName));
     axios
       .post(
         "https://react-hooks-fundamentals.firebaseio.com/todos.json",
         { name: todoName } // Firebase requires object
       )
-      .then(res => console.log(res))
+      .then(res => {
+        // console.log(res.data); // returns {name: "-LfeR6IXsQ2YfMAi6X7N"}
+        setTodoList(todoList.concat({ id: res.data.name, name: todoName }));
+      })
       .catch(err => console.log(err));
   };
 
+  // let displayTodo = null;
+
+  // if (todoList)
   const displayTodo = () =>
+    // console.log("--here--", todoList);
     todoList.map(todo => <li key={todo.id}>{todo.name}</li>);
 
   return (
     <React.Fragment>
+      <h4>To Do Component</h4>
       <input
         className="i"
         type="text"
