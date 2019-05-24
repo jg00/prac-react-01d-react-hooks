@@ -1,19 +1,32 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
 import Header from "./components/Header";
 import Todo from "./components/Todo";
 import Auth from "./components/Auth";
+import AuthContext from "./auth-context";
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <Header />
+const app = props => {
+  const [page, setPage] = useState("auth");
+  const [authStatus, setAuthStatus] = useState(false);
+
+  const switchPage = pageName => {
+    setPage(pageName);
+  };
+
+  const login = () => {
+    setAuthStatus(true);
+  };
+
+  return (
+    <div className="App">
+      <AuthContext.Provider value={{ status: authStatus, login: login }}>
+        <Header
+          onLoadToDos={switchPage.bind(this, "todos")}
+          onLoadAuth={switchPage.bind(this, "auth")}
+        />
         <hr />
-        <Todo />
-        <Auth />
-      </div>
-    );
-  }
-}
-
-export default App;
+        {page === "auth" ? <Auth /> : <Todo />}
+      </AuthContext.Provider>
+    </div>
+  );
+};
+export default app;

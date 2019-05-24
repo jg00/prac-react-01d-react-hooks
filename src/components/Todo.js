@@ -24,13 +24,13 @@ const todo = props => {
 
     // Clean up phase after your last useEffect() basically.  Will be executed on every render cycle.
     return () => {
-      console.log("Cleanup");
+      console.log("Cleanup: todo component unmounted on useEffect() one.");
     };
   }, []);
 
   // Example scenario to clean up event listeners so we only have one.
   const mouseMoveHandler = event => {
-    console.log(event.clientX, event.clientY);
+    // console.log(event.clientX, event.clientY);
   };
 
   useEffect(() => {
@@ -38,6 +38,7 @@ const todo = props => {
 
     // Clean up to ensure we only have one listener at a time because the old one gets cleaned up when the effect is applied again.
     return () => {
+      console.log("Cleanup: todo component unmounted on useEffect() two.");
       document.removeEventListener("mousemove", mouseMoveHandler);
     };
   }, []); // Note having [] argument has the effect of .addEventListener executed only on onComponentDidMount and clean up executes only on onComponentDidUnmount.
