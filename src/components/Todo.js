@@ -3,6 +3,7 @@ import axios from "axios";
 
 const todo = props => {
   const [todoName, setTodoName] = useState("");
+  const [submittedTodo, setSubmittedTodo] = useState(null);
   const [todoList, setTodoList] = useState([]);
 
   // Get data once only
@@ -22,11 +23,11 @@ const todo = props => {
         setTodoList(todos);
       });
 
-    // Clean up phase after your last useEffect() basically.  Will be executed on every render cycle.
+    // Clean up phase after your last useEffect() basically.  Will be executed depending on second argument ie ([], [specific variable(s)], or left empty to run on every render cycle).
     return () => {
       console.log("Cleanup: todo component unmounted on useEffect() one.");
     };
-  }, []);
+  }, []); // [] will run useEffect() only when component rendered and when unmounted.
 
   // Example scenario to clean up event listeners so we only have one.
   const mouseMoveHandler = event => {
@@ -43,29 +44,42 @@ const todo = props => {
     };
   }, []); // Note having [] argument has the effect of .addEventListener executed only on onComponentDidMount and clean up executes only on onComponentDidUnmount.
 
+  useEffect(() => {
+    if (submittedTodo) {
+      setTodoList(todoList.concat(submittedTodo));
+    }
+  }, [submittedTodo]); // Only run when there is a change in submittedTodo state.
+
   const inputChangeHandler = event => {
     setTodoName(event.target.value);
   };
 
   const todoAddHandler = () => {
-    // setTodoList(todoList.concat(todoName));
     axios
       .post(
         "https://react-hooks-fundamentals.firebaseio.com/todos.json",
         { name: todoName } // Firebase requires object
       )
       .then(res => {
-        // console.log(res.data); // returns {name: "-LfeR6IXsQ2YfMAi6X7N"}
-        setTodoList(todoList.concat({ id: res.data.name, name: todoName }));
+        /* 
+          Note that at the time of entry into a function our variable values 
+          which we get from outside are locked in. This leads to problem where we
+          do not update our UI correctly. So entering this function withing the 5 seconds below
+          means we are using and updating the same variable values for the todoList during that time frame.
+        */
+
+        setTimeout(() => {
+          // console.log(res.data); // returns {name: "-LfeR6IXsQ2YfMAi6X7N"}
+          const todoItem = { id: res.data.name, name: todoName };
+
+          // setTodoList(todoList.concat(todoItem)); // Update in useEffect()
+          setSubmittedTodo(todoItem); // Set state and watch for changes using useEffect(()=> {..}, submittedTodo)
+        }, 5000);
       })
       .catch(err => console.log(err));
   };
 
-  // let displayTodo = null;
-
-  // if (todoList)
   const displayTodo = () =>
-    // console.log("--here--", todoList);
     todoList.map(todo => <li key={todo.id}>{todo.name}</li>);
 
   return (
