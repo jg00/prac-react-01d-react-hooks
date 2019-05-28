@@ -1,10 +1,36 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useReducer } from "react";
 import axios from "axios";
 
 const todo = props => {
   const [todoName, setTodoName] = useState("");
   const [submittedTodo, setSubmittedTodo] = useState(null);
-  const [todoList, setTodoList] = useState([]);
+  // const [todoList, setTodoList] = useState([]); // Commented out and replaced with useReducer().
+
+  // A reducer in the end is a function that can handle a few different cases
+  // and update state in different ways
+  // The argument state is current state.  Whatever is returned will the 'new' state.
+  // * Note that React will pass these two arguments automatically for us.
+  const todoListReducer = (state, action) => {
+    switch (action.type) {
+      case "ADD":
+        return state.concat(action.payload);
+      case "SET":
+        return action.payload;
+      case "REMOVE":
+        return state.filter(todo => todo.id !== action.payload);
+      default:
+        return state;
+    }
+  };
+
+  /* 
+    useReducer:
+    Accepts a reducer of type (state, action) => newState, and returns 
+    the current state paired with a dispatch method.
+  */
+
+  // const [state (*new state set and returned when dispatch action called.), dispatch] = useReducer(reducer, initialArg, init);  --> init could be an initial action you want to execute ex: {type: 'ADD', { item you want to add }}
+  const [todoList, dispatch] = useReducer(todoListReducer, []);
 
   // Get data once only
   useEffect(() => {
@@ -20,7 +46,9 @@ const todo = props => {
         for (let key in todoData) {
           todos.push({ id: key, name: todoData[key].name });
         }
-        setTodoList(todos);
+
+        // setTodoList(todos); // replaced with useReducer. Here we dispatch an action.
+        dispatch({ type: "SET", payload: todos });
       });
 
     // Clean up phase after your last useEffect() basically.  Will be executed depending on second argument ie ([], [specific variable(s)], or left empty to run on every render cycle).
@@ -31,7 +59,7 @@ const todo = props => {
 
   // Example scenario to clean up event listeners so we only have one.
   const mouseMoveHandler = event => {
-    // console.log(event.clientX, event.clientY);
+    // console.log(event.clientX, event.clientY); // Commented temporarily.
   };
 
   useEffect(() => {
@@ -46,7 +74,8 @@ const todo = props => {
 
   useEffect(() => {
     if (submittedTodo) {
-      setTodoList(todoList.concat(submittedTodo));
+      // setTodoList(todoList.concat(submittedTodo));  // Replaced with useReducer. Here we dispatch an action.
+      dispatch({ type: "ADD", payload: submittedTodo });
     }
   }, [submittedTodo]); // Only run when there is a change in submittedTodo state.
 
@@ -74,7 +103,7 @@ const todo = props => {
 
           // setTodoList(todoList.concat(todoItem)); // Update in useEffect()
           setSubmittedTodo(todoItem); // Set state and watch for changes using useEffect(()=> {..}, submittedTodo)
-        }, 5000);
+        }, 3000);
       })
       .catch(err => console.log(err));
   };
