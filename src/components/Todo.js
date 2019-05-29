@@ -3,13 +3,15 @@ import axios from "axios";
 
 const todo = props => {
   const [todoName, setTodoName] = useState("");
-  const [submittedTodo, setSubmittedTodo] = useState(null);
+  // const [submittedTodo, setSubmittedTodo] = useState(null); // Commented out and replaced with useReducer().
   // const [todoList, setTodoList] = useState([]); // Commented out and replaced with useReducer().
 
   // A reducer in the end is a function that can handle a few different cases
   // and update state in different ways
   // The argument state is current state.  Whatever is returned will the 'new' state.
   // * Note that React will pass these two arguments automatically for us.
+  // * By using dispatch(action) we pass this action to the reducer function below that
+  // * always receive the latest snapshot of the state.
   const todoListReducer = (state, action) => {
     switch (action.type) {
       case "ADD":
@@ -47,6 +49,7 @@ const todo = props => {
           todos.push({ id: key, name: todoData[key].name });
         }
 
+        // You dispatch an action to update a state in this case todoList.
         // setTodoList(todos); // replaced with useReducer. Here we dispatch an action.
         dispatch({ type: "SET", payload: todos });
       });
@@ -72,12 +75,15 @@ const todo = props => {
     };
   }, []); // Note having [] argument has the effect of .addEventListener executed only on onComponentDidMount and clean up executes only on onComponentDidUnmount.
 
+  /* Below had to be implemented to avoid display bug issues.
+  // Commented out and replaced with useReducer().  
   useEffect(() => {
     if (submittedTodo) {
       // setTodoList(todoList.concat(submittedTodo));  // Replaced with useReducer. Here we dispatch an action.
       dispatch({ type: "ADD", payload: submittedTodo });
     }
   }, [submittedTodo]); // Only run when there is a change in submittedTodo state.
+  */
 
   const inputChangeHandler = event => {
     setTodoName(event.target.value);
@@ -102,14 +108,32 @@ const todo = props => {
           const todoItem = { id: res.data.name, name: todoName };
 
           // setTodoList(todoList.concat(todoItem)); // Update in useEffect()
-          setSubmittedTodo(todoItem); // Set state and watch for changes using useEffect(()=> {..}, submittedTodo)
+
+          // Commented out and replaced with useReducer().
+          // setSubmittedTodo(todoItem); // Set state and watch for changes using useEffect(()=> {..}, submittedTodo)
+          dispatch({ type: "ADD", payload: todoItem });
         }, 3000);
       })
       .catch(err => console.log(err));
   };
 
+  const todoRemoveHandler = todoId => {
+    axios
+      .delete(
+        `https://react-hooks-fundamentals.firebaseio.com/todos/${todoId}.json`
+      )
+      .then(res => {
+        dispatch({ type: "REMOVE", payload: todoId });
+      })
+      .catch(err => console.log(err));
+  };
+
   const displayTodo = () =>
-    todoList.map(todo => <li key={todo.id}>{todo.name}</li>);
+    todoList.map(todo => (
+      <li key={todo.id} onClick={todoRemoveHandler.bind(this, todo.id)}>
+        {todo.name}
+      </li>
+    ));
 
   return (
     <React.Fragment>

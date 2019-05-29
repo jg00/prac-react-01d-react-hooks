@@ -6,6 +6,11 @@
 
 - useState()
 - useEffect()
+- Use Context API
+  - React.createContext()
+  - <Context.Provider> wrapper
+  - useContext()
+- useReducer()
 
 ## Technologies
 
