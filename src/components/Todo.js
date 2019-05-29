@@ -1,10 +1,13 @@
-import React, { useState, useEffect, useReducer } from "react";
+import React, { useState, useEffect, useReducer, useRef } from "react";
 import axios from "axios";
 
 const todo = props => {
   const [todoName, setTodoName] = useState("");
   // const [submittedTodo, setSubmittedTodo] = useState(null); // Commented out and replaced with useReducer().
   // const [todoList, setTodoList] = useState([]); // Commented out and replaced with useReducer().
+
+  // For useRef example - alternative to using useState to get/set a value.
+  const todoInputRef = useRef(); // Used in todoAddHandlerUsingRef()
 
   // A reducer in the end is a function that can handle a few different cases
   // and update state in different ways
@@ -117,6 +120,37 @@ const todo = props => {
       .catch(err => console.log(err));
   };
 
+  // Example using useRef to get access to an element.
+  const todoAddHandlerUsingRef = () => {
+    const todoName = todoInputRef.current.value; // 'current' property holds the actual html element reference
+
+    axios
+      .post(
+        "https://react-hooks-fundamentals.firebaseio.com/todos.json",
+        { name: todoName } // Firebase requires object
+      )
+      .then(res => {
+        /* 
+          Note that at the time of entry into a function our variable values 
+          which we get from outside are locked in. This leads to problem where we
+          do not update our UI correctly. So entering this function withing the 5 seconds below
+          means we are using and updating the same variable values for the todoList during that time frame.
+        */
+
+        setTimeout(() => {
+          // console.log(res.data); // returns {name: "-LfeR6IXsQ2YfMAi6X7N"}
+          const todoItem = { id: res.data.name, name: todoName };
+
+          // setTodoList(todoList.concat(todoItem)); // Update in useEffect()
+
+          // Commented out and replaced with useReducer().
+          // setSubmittedTodo(todoItem); // Set state and watch for changes using useEffect(()=> {..}, submittedTodo)
+          dispatch({ type: "ADD", payload: todoItem });
+        }, 3000);
+      })
+      .catch(err => console.log(err));
+  };
+
   const todoRemoveHandler = todoId => {
     axios
       .delete(
@@ -141,12 +175,16 @@ const todo = props => {
       <input
         className="i"
         type="text"
-        placeholder="Todo"
+        placeholder="add to todoList"
         onChange={inputChangeHandler}
         value={todoName}
       />
       <button type="button" onClick={todoAddHandler}>
-        Add
+        Add (useState)
+      </button>
+      <input type="text" placeholder="add to todoList" ref={todoInputRef} />
+      <button type="button" onClick={todoAddHandlerUsingRef}>
+        Add (useRef)
       </button>
       <ul>{displayTodo()}</ul>
     </React.Fragment>
