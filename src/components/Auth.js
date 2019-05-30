@@ -11,7 +11,8 @@ const Auth = props => {
         Click 'Log In!' to update the authStatus state set up in App.js to get
         access to the Todo page via Todo List button.
       </p>
-      <button onClick={auth.login}>Log In!</button>
+      <button onClick={auth.login.bind(this, true)}>Log In!</button>
+      <button onClick={auth.login.bind(this, false)}>Log Out!</button>
     </React.Fragment>
   );
 };

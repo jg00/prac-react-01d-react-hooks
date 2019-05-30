@@ -1,15 +1,20 @@
 import React, { useState, useEffect, useReducer, useRef, useMemo } from "react";
 import axios from "axios";
 import List from "./List";
+import { useFormInput } from "../hooks/forms";
 
 const todo = props => {
   const [inputIsValid, setInputIsValid] = useState(false);
+  const [inputIsValidRef, setInputIsValidRef] = useState(false);
   const [todoName, setTodoName] = useState("");
   // const [submittedTodo, setSubmittedTodo] = useState(null); // Commented out and replaced with useReducer().
   // const [todoList, setTodoList] = useState([]); // Commented out and replaced with useReducer().
 
   // For useRef example - alternative to using useState to get/set a value.
   const todoInputRef = useRef(); // Used in todoAddHandlerUsingRef()
+
+  // For custom hook
+  const todoInput = useFormInput(); // { value: value, onChange: inputChangeHandler, validity };
 
   // A reducer in the end is a function that can handle a few different cases
   // and update state in different ways
@@ -70,14 +75,23 @@ const todo = props => {
     // console.log(event.clientX, event.clientY); // Commented temporarily.
   };
 
-  // This example is for validating second input
+  // This example is for validating first input
   const inputValidationHandler = event => {
     if (event.target.value.trim() === "") {
-      // console.log("inputValidationHandler called - false");
       setInputIsValid(false);
     } else {
-      // console.log("inputValidationHandler called - true");
       setInputIsValid(true);
+    }
+  };
+
+  // This example is for validating second input
+  const inputValidationHandlerRef = event => {
+    if (event.target.value.trim() === "") {
+      // console.log("inputValidationHandler called - false");
+      setInputIsValidRef(false);
+    } else {
+      // console.log("inputValidationHandler called - true");
+      setInputIsValidRef(true);
     }
   };
 
@@ -102,6 +116,8 @@ const todo = props => {
   */
 
   const inputChangeHandler = event => {
+    // inputValidationHandlerRef(event);
+    // setInputIsValid(true);
     inputValidationHandler(event);
     setTodoName(event.target.value);
   };
@@ -165,6 +181,37 @@ const todo = props => {
       .catch(err => console.log(err));
   };
 
+  // Example using useRef to get access to an element.
+  const todoAddHandlerUsingCustomHook = () => {
+    const todoName = todoInput.value; // 'current' property holds the actual html element reference
+
+    axios
+      .post(
+        "https://react-hooks-fundamentals.firebaseio.com/todos.json",
+        { name: todoName } // Firebase requires object
+      )
+      .then(res => {
+        /* 
+            Note that at the time of entry into a function our variable values 
+            which we get from outside are locked in. This leads to problem where we
+            do not update our UI correctly. So entering this function withing the 5 seconds below
+            means we are using and updating the same variable values for the todoList during that time frame.
+          */
+
+        setTimeout(() => {
+          // console.log(res.data); // returns {name: "-LfeR6IXsQ2YfMAi6X7N"}
+          const todoItem = { id: res.data.name, name: todoName };
+
+          // setTodoList(todoList.concat(todoItem)); // Update in useEffect()
+
+          // Commented out and replaced with useReducer().
+          // setSubmittedTodo(todoItem); // Set state and watch for changes using useEffect(()=> {..}, submittedTodo)
+          dispatch({ type: "ADD", payload: todoItem });
+        }, 3000);
+      })
+      .catch(err => console.log(err));
+  };
+
   const todoRemoveHandler = todoId => {
     axios
       .delete(
@@ -204,14 +251,28 @@ const todo = props => {
         type="text"
         placeholder="add to todoList"
         ref={todoInputRef}
-        onChange={inputValidationHandler}
+        onChange={inputValidationHandlerRef}
         style={{
-          backgroundColor: inputIsValid ? "orange" : "pink"
+          backgroundColor: inputIsValidRef ? "orange" : "pink"
         }}
       />
       <button type="button" onClick={todoAddHandlerUsingRef}>
         Add (useRef)
       </button>
+      <br />
+      <input
+        type="text"
+        placeholder="custom hook"
+        onChange={todoInput.onChange}
+        value={todoInput.value}
+        style={{
+          backgroundColor: todoInput.validity ? "orange" : "pink"
+        }}
+      />
+      <button type="button" onClick={todoAddHandlerUsingCustomHook}>
+        Add (useCustomHook)
+      </button>
+      <br />
       <ul>{displayTodo()}</ul>
       <hr />
       <h4>useMemo() - Should component update pattern</h4>

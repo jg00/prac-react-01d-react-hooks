@@ -13,8 +13,8 @@ const app = props => {
     setPage(pageName);
   };
 
-  const login = () => {
-    setAuthStatus(true);
+  const login = authState => {
+    setAuthStatus(authState);
   };
 
   return (
