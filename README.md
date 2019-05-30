@@ -11,6 +11,7 @@
   - <Context.Provider> wrapper
   - useContext()
 - useReducer()
+- useRef()
 
 ## Technologies
 

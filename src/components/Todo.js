@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useReducer, useRef } from "react";
+import React, { useState, useEffect, useReducer, useRef, useMemo } from "react";
 import axios from "axios";
+import List from "./List";
 
 const todo = props => {
+  const [inputIsValid, setInputIsValid] = useState(false);
   const [todoName, setTodoName] = useState("");
   // const [submittedTodo, setSubmittedTodo] = useState(null); // Commented out and replaced with useReducer().
   // const [todoList, setTodoList] = useState([]); // Commented out and replaced with useReducer().
@@ -68,6 +70,17 @@ const todo = props => {
     // console.log(event.clientX, event.clientY); // Commented temporarily.
   };
 
+  // This example is for validating second input
+  const inputValidationHandler = event => {
+    if (event.target.value.trim() === "") {
+      // console.log("inputValidationHandler called - false");
+      setInputIsValid(false);
+    } else {
+      // console.log("inputValidationHandler called - true");
+      setInputIsValid(true);
+    }
+  };
+
   useEffect(() => {
     document.addEventListener("mousemove", mouseMoveHandler);
 
@@ -89,6 +102,7 @@ const todo = props => {
   */
 
   const inputChangeHandler = event => {
+    inputValidationHandler(event);
     setTodoName(event.target.value);
   };
 
@@ -178,15 +192,39 @@ const todo = props => {
         placeholder="add to todoList"
         onChange={inputChangeHandler}
         value={todoName}
+        style={{
+          backgroundColor: inputIsValid ? "orange" : "pink"
+        }}
       />
       <button type="button" onClick={todoAddHandler}>
         Add (useState)
       </button>
-      <input type="text" placeholder="add to todoList" ref={todoInputRef} />
+      <br />
+      <input
+        type="text"
+        placeholder="add to todoList"
+        ref={todoInputRef}
+        onChange={inputValidationHandler}
+        style={{
+          backgroundColor: inputIsValid ? "orange" : "pink"
+        }}
+      />
       <button type="button" onClick={todoAddHandlerUsingRef}>
         Add (useRef)
       </button>
       <ul>{displayTodo()}</ul>
+      <hr />
+      <h4>useMemo() - Should component update pattern</h4>
+      <p>
+        Optimize by preventing the List component below from re-rendering for
+        every character entered on the first input.
+      </p>
+      {useMemo(
+        () => (
+          <List items={todoList} onClick={todoRemoveHandler} />
+        ),
+        [todoList]
+      )}
     </React.Fragment>
   );
 };

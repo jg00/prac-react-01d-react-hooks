@@ -1,0 +1,14 @@
+.AppContainer {
+  margin: 10px;
+}
+
+.AppHeader {
+  color: #f2c5b3;
+  text-align: center;
+  height: 50px;
+  background: #795858;
+  margin: 0 0 24px 0;
+  box-sizing: border-box;
+  padding: 10px;
+  background: #795858;
+}
