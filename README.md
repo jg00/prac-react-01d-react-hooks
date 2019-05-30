@@ -12,6 +12,8 @@
 
 <a href="http://explore-react-hooks-jg.surge.sh/" target="_blank"><img width="497" alt="explore-react-02" src="https://user-images.githubusercontent.com/43181662/58659990-edcaea00-82e9-11e9-971d-4af8da93f615.png"></a>
 <br>
+<br>
+<br>
 
 ## Main Items Covered
 
@@ -24,7 +26,7 @@
 - useReducer() - handle more complex state
 - useRef() - target an element
 - useMemo() - handle unnecessary rerendering
-- Ceate custom hook
+- Create custom hook
 
 ## Technologies
 
