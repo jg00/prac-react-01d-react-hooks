@@ -10,8 +10,9 @@
   - React.createContext()
   - <Context.Provider> wrapper
   - useContext()
-- useReducer()
-- useRef()
+- useReducer() - handle more complex state
+- useRef() - target an element
+- useMemo() - handle unnecessary rerendering
 
 ## Technologies
 
